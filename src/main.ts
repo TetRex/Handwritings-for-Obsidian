@@ -1,4 +1,6 @@
-import { Plugin } from "obsidian";
+import { MarkdownView, Plugin } from "obsidian";
+import { PencilCanvas } from "./canvas";
+import { PencilToolbar } from "./toolbar";
 
 function generateSketchId(): string {
 	const alphabet =
@@ -26,12 +28,44 @@ function parsePencilBlock(source: string): Record<string, string> {
 
 export default class PencilNotesPlugin extends Plugin {
 	async onload() {
-		this.registerMarkdownCodeBlockProcessor("pencil", (source, el) => {
+		this.registerMarkdownCodeBlockProcessor("pencil", (source, el, ctx) => {
 			const data = parsePencilBlock(source);
 			const sketchId = data["sketch-id"] || generateSketchId();
 
 			const wrapper = el.createDiv({ cls: "pencil-canvas-wrapper" });
-			wrapper.setText(sketchId);
+			const toolbarContainer = wrapper.createDiv();
+			const canvasContainer = wrapper.createDiv();
+
+			const canvas = new PencilCanvas(canvasContainer, sketchId, this.app);
+
+			const handleSave = async () => {
+				const path = `Attachments/pencil-${sketchId}.png`;
+				const existed = await this.app.vault.adapter.exists(path);
+				await canvas.savePng(path);
+
+				if (existed) return;
+
+				const view =
+					this.app.workspace.getActiveViewOfType(MarkdownView);
+				const editor = view?.editor;
+				if (!editor) return;
+
+				const section = ctx.getSectionInfo(el);
+				if (!section) return;
+
+				const endLineText = editor.getLine(section.lineEnd);
+				editor.replaceRange(`\n\n![[${path}]]`, {
+					line: section.lineEnd,
+					ch: endLineText.length,
+				});
+			};
+
+			new PencilToolbar(
+				toolbarContainer,
+				() => {},
+				() => {},
+				handleSave,
+			);
 		});
 	}
 

@@ -106,4 +106,21 @@ export class PencilCanvas {
 			this.canvas.releasePointerCapture(event.pointerId);
 		}
 	};
+
+	async savePng(vaultPath: string): Promise<string> {
+		const dataUrl = this.canvas.toDataURL("image/png");
+		const prefix = "data:image/png;base64,";
+		const base64 = dataUrl.startsWith(prefix)
+			? dataUrl.slice(prefix.length)
+			: dataUrl;
+
+		const binary = atob(base64);
+		const bytes = new Uint8Array(binary.length);
+		for (let i = 0; i < binary.length; i++) {
+			bytes[i] = binary.charCodeAt(i);
+		}
+
+		await this.app.vault.adapter.writeBinary(vaultPath, bytes.buffer);
+		return vaultPath;
+	}
 }
