@@ -42,7 +42,7 @@ export default class HandwritingPlugin extends Plugin {
 		canvas.width = 400;
 		canvas.height = 220;
 		canvas.style.width = "100%";
-		canvas.style.height = "100%";
+		canvas.style.flex = "1";
 		canvas.style.display = "block";
 		canvas.style.background = "#fff";
 		canvas.style.cursor = "crosshair";
@@ -54,15 +54,14 @@ export default class HandwritingPlugin extends Plugin {
 		toolbar.style.borderTop = "1px solid #e0e0e0";
 		toolbar.style.background = "#fafafa";
 
-		const clearButton = document.createElement("button");
-		clearButton.textContent = "Clear";
 		const saveButton = document.createElement("button");
 		saveButton.textContent = "Save";
-		const closeButton = document.createElement("button");
-		closeButton.textContent = "Close";
-		closeButton.addEventListener("click", () => container.remove());
+		const clearButton = document.createElement("button");
+		clearButton.textContent = "Clear";
+		const undoButton = document.createElement("button");
+		undoButton.textContent = "Undo";
 
-		toolbar.append(clearButton, saveButton, closeButton);
+		toolbar.append(saveButton, clearButton, undoButton);
 		container.append(header, canvas, toolbar);
 		document.body.appendChild(container);
 	}
