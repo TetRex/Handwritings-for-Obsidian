@@ -1,0 +1,18 @@
+{
+	"name": "handwriting-pad",
+	"version": "0.0.1",
+	"description": "Obsidian handwriting pad plugin",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "node esbuild.config.mjs production"
+	},
+	"devDependencies": {
+		"@types/node": "^20.16.5",
+		"builtin-modules": "^3.3.0",
+		"esbuild": "^0.24.0",
+		"obsidian": "^1.8.0",
+		"tslib": "^2.7.0",
+		"typescript": "^5.6.2"
+	}
+}

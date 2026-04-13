@@ -1,6 +1,14 @@
 import { Plugin } from "obsidian";
 
+type Point = {
+	x: number;
+	y: number;
+};
+
 export default class HandwritingPlugin extends Plugin {
+	private strokes: Point[][] = [];
+	private currentStroke: Point[] | null = null;
+
 	async onload(): Promise<void> {
 		this.addCommand({
 			id: "open-handwriting-pad",
@@ -10,6 +18,9 @@ export default class HandwritingPlugin extends Plugin {
 	}
 
 	openPad(): void {
+		this.strokes = [];
+		this.currentStroke = null;
+
 		const existing = document.getElementById("handwriting-pad-window");
 		if (existing) {
 			existing.remove();
@@ -60,6 +71,61 @@ export default class HandwritingPlugin extends Plugin {
 		clearButton.textContent = "Clear";
 		const undoButton = document.createElement("button");
 		undoButton.textContent = "Undo";
+
+		const context = canvas.getContext("2d");
+		if (!context) {
+			return;
+		}
+
+		context.lineWidth = 2;
+		context.lineCap = "round";
+		context.lineJoin = "round";
+		context.strokeStyle = "#111111";
+
+		const getPoint = (event: PointerEvent): Point => {
+			const rect = canvas.getBoundingClientRect();
+			return {
+				x: event.clientX - rect.left,
+				y: event.clientY - rect.top,
+			};
+		};
+
+		const drawSegment = (from: Point, to: Point): void => {
+			context.beginPath();
+			context.moveTo(from.x, from.y);
+			context.lineTo(to.x, to.y);
+			context.stroke();
+		};
+
+		const handlePointerDown = (event: PointerEvent): void => {
+			canvas.setPointerCapture(event.pointerId);
+			const point = getPoint(event);
+			this.currentStroke = [point];
+			this.strokes.push(this.currentStroke);
+		};
+
+		const handlePointerMove = (event: PointerEvent): void => {
+			if (!this.currentStroke) {
+				return;
+			}
+
+			const point = getPoint(event);
+			const lastPoint = this.currentStroke[this.currentStroke.length - 1];
+			this.currentStroke.push(point);
+			drawSegment(lastPoint, point);
+		};
+
+		const handlePointerUp = (event: PointerEvent): void => {
+			if (canvas.hasPointerCapture(event.pointerId)) {
+				canvas.releasePointerCapture(event.pointerId);
+			}
+			this.currentStroke = null;
+		};
+
+		canvas.addEventListener("pointerdown", handlePointerDown);
+		canvas.addEventListener("pointermove", handlePointerMove);
+		canvas.addEventListener("pointerup", handlePointerUp);
+		canvas.addEventListener("pointercancel", handlePointerUp);
 
 		toolbar.append(saveButton, clearButton, undoButton);
 		container.append(header, canvas, toolbar);
