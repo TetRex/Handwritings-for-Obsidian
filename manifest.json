@@ -1,9 +1,0 @@
-{
-	"id": "pencil-notes",
-	"name": "Pencil Notes",
-	"version": "1.0.0",
-	"minAppVersion": "1.0.0",
-	"description": "Pencil Notes plugin for Obsidian",
-	"author": "",
-	"isDesktopOnly": false
-}
