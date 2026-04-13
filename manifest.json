@@ -1,0 +1,9 @@
+{
+	"id": "handwriting-pad",
+	"name": "Handwriting Pad",
+	"version": "0.0.1",
+	"minAppVersion": "1.5.0",
+	"description": "Open a floating handwriting pad, draw, and insert saved output into notes.",
+	"author": "tetrex",
+	"isDesktopOnly": false
+}
